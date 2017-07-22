@@ -1,2 +1,2 @@
 # smalls-pieces-for-solenoids
-Nil.
+Three soleonids, two contact mics, one computer, two hands.
