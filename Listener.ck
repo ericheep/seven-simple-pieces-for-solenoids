@@ -9,22 +9,29 @@ public class Listener extends Chubgraph {
     inlet => g;
 
     3 => g.op;
-    0.0 => float m_dB;
+    0.9999 => p.pole;
 
+    fun float dB() {
+        return Std.rmstodb(p.last());
+    }
 
-    fun int isBelow(int db) {
+    fun void setPole(float pl) {
+        p.pole(pl);
+    }
+
+    fun int isBelow(float db) {
         if (db > Std.rmstodb(p.last())) {
             return true;
         }
     }
 
-    fun int isAbove(int db) {
+    fun int isAbove(float db) {
         if (db < Std.rmstodb(p.last())) {
             return true;
         }
     }
 
-    fun int isBetween(int lowDb, int highDb) {
+    fun int isBetween(float  lowDb, float  highDb) {
         Std.rmstodb(p.last()) => float currentDb;
         if (currentDb > lowDb && currentDb < highDb) {
             return true;
