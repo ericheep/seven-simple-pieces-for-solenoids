@@ -1,5 +1,5 @@
 // untitled-1.ck
-// July 22nd, 2017
+// July 27th, 2017
 // Eric Heep
 
 adc.left => Gain left => dac.left;
