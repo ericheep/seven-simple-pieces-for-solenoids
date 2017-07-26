@@ -30,7 +30,7 @@ public class Meepo {
     }
 
     // solenoid actuation
-    fun void solenoid(int num, int vel) {
+    fun void actuate(int num, int vel) {
         // allows 0-63 and velocities 0-1023
         int bytes[3];
         255 => bytes[0];
