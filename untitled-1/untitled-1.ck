@@ -33,7 +33,7 @@ fun void phase(int numNotes, dur totalDuration, dur cycle) {
     }
 
     if (numNotes > numCycles) {
-        <<< "your totalDuration time is too short or your length is too long", "" >>>;
+        <<< "your total time is too short or your number of notes is too large", "" >>>;
         me.exit();
     }
 
