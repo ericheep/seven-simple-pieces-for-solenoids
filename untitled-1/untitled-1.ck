@@ -1,38 +1,71 @@
 // untitled-1.ck
+// (obligatory-phase)
+
 // July 27th, 2017
 // Eric Heep
 
-adc.left => Gain left => dac.left;
-adc.right => Gain right => dac.right;
+// init
 
 Meepo meep;
-meep.init();
+Gain g[3];
 
-Listener l;
+1 => int test;
 
-fun void one() {
-    while(true) {
-        second => now;
+if (test) {
+    adc => g[0] => dac;
+    g[0].gain(0.0);
+} else {
+    adc.chan(0) => g[0] => dac.left;
+    adc.chan(1) => g[1] => dac.left;
+    adc.chan(2) => g[2] => dac.left;
 
-        for (int i; i < 20; i++) {
-            meep.solenoid(0, 52);
-            90::ms => now;
+    meep.init();
+}
+
+// guts
+
+fun void phase(int numNotes, dur totalDuration, dur cycle) {
+    (totalDuration/cycle) $ int => int numCycles;
+
+    if (totalDuration/cycle != numCycles) {
+        numCycles * cycle => totalDuration;
+        <<< "total time is not divisible by the cycle time, calculating a new total of", totalDuration/minute, "minutes" >>>;
+    }
+
+    if (numNotes > numCycles) {
+        <<< "your totalDuration time is too short or your length is too long", "" >>>;
+        me.exit();
+    }
+
+    for (int i; i < numNotes; i++) {
+        spork ~ phaseLoop( i, numCycles, totalDuration);
+        0.5::ms => now;
+    }
+
+    totalDuration => now;
+    1::second => now;
+}
+
+fun void phaseLoop(int idx, int numCycles, dur totalDuration) {
+    totalDuration/(numCycles - idx) => dur cycleDuration;
+    for (int i; i < numCycles - idx; i++) {
+        if (test) {
+            <<< idx, "" >>>;
+        } else {
+            meep.actuate(idx , 50);
         }
+        cycleDuration => now;
     }
 }
 
-fun void two() {
-    while(true) {
-        second => now;
 
-        for (int i; i < 20; i++) {
-            meep.solenoid(1, 51);
-            80::ms => now;
-        }
-    }
+fun void main() {
+    phase(3, 2::minute, 1.0::second);
 }
 
-spork ~ one();
-spork ~ two();
+// run
 
-day => now;
+second => now;
+<<< "okay", "" >>>;
+
+main();
