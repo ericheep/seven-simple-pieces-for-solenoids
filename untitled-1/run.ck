@@ -1,6 +1,7 @@
 // run.ck
-// July 27th, 2017
+// July 26th, 2017
 // Eric Heep
 
 Machine.add(me.dir() + "../Meepo.ck");
-Machine.add(me.dir() + "untitled-1.ck");
+
+Machine.add(me.dir() + "main.ck");

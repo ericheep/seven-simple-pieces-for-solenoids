@@ -9,6 +9,7 @@
 0 => int test;
 
 Meepo meep;
+Utility u;
 Listener l;
 Gain g[3];
 
@@ -29,23 +30,6 @@ if (test) {
     meep.init();
 }
 
-// utility
-
-fun void shuffle(int arr[]) {
-    arr.size() => int currIdx;
-    0 => int tempVal;
-    0 => int randIdx;
-
-    while (0 != currIdx) {
-        Math.random2(0, currIdx - 1) => randIdx;
-        currIdx--;
-
-        arr[currIdx] => tempVal;
-        arr[randIdx] => arr[currIdx];
-        tempVal => arr[randIdx];
-    }
-}
-
 // guts
 
 fun void magnetize(int idx, dur length) {
@@ -62,7 +46,7 @@ fun void magnetize(int idx, dur length) {
 
 fun void beeps() {
     [0, 1, 2] @=> int order[];
-    shuffle(order);
+    u.shuffleArray(order);
 
     for (0 => int i; i < 3; i++) {
         spork ~ magnetize(order[i], 30::ms);

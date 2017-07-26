@@ -4,4 +4,5 @@
 
 Machine.add(me.dir() + "../Meepo.ck");
 Machine.add(me.dir() + "../Listener.ck");
-Machine.add(me.dir() + "untitled-6.ck");
+
+Machine.add(me.dir() + "main.ck");
