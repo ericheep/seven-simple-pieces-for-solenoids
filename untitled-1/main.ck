@@ -1,4 +1,4 @@
-// untitled-1.ck
+// main.ck
 // (obligatory-phase)
 
 // July 27th, 2017
