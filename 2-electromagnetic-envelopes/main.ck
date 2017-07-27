@@ -9,15 +9,15 @@
 Meepo meep;
 Gain g[3];
 SinOsc s[3];
-ADSR env[3];
+WinFuncEnv env[3];
 
 1 => int test;
 
 if (test) {
     for (0 => int i; i < 3; i++) {
         s[i] => env[i] => dac;
-        s[i].freq(100 * (i + 1));
-        s[i].gain(0.5);
+        s[i].freq(400 * (i + 1));
+        s[i].gain(0.8);
     }
 } else {
     for (0 => int i; i < 3; i++) {
@@ -26,65 +26,107 @@ if (test) {
     meep.init();
 }
 
-
 // guts
+
+[3, 3, 5, 5] @=> int velocity[];
+[3::ms, 4::ms, 3::ms, 4::ms] @=> dur milliseconds[];
+
+int numSettings;
+int numEndings;
+
+if (velocity.size() == milliseconds.size()) {
+    velocity.size() => numSettings;
+} else {
+    <<< "fix it", "" >>>;
+    me.exit();
+}
 
 fun void magnetize(int idx, dur duration) {
     now => time start;
-
-    // random for now, will be pull from a set later on
-
-    Math.random2(5, 6) => int velocity;
-    Math.random2(6, 7)::ms => dur milliseconds;
+    Math.random2(0, numSettings - 1) => int settingIdx;
 
     while (now < start + duration) {
-        meep.actuate(idx, velocity);
-        milliseconds => now;
+        if (!test) {
+            meep.actuate(idx, velocity[settingIdx]);
+        }
+
+        milliseconds[settingIdx] => now;
     }
 }
 
 
-fun void sequence(int idx, dur startingDuration, dur endingDuration, dur totalDuration) {
+fun void rise(int idx, float percentActive, dur totalDuration) {
+    percentActive * totalDuration => dur windowDuration;
+    totalDuration - windowDuration => dur restDuration;
+    Math.random2f(0.0, 1.0) * restDuration => dur waitDuration;
 
-    startingDuration => dur currentDuration;
-    totalDuration - currentDuration => dur restDuration;
+    env[idx].attack(windowDuration/2.0);
+    env[idx].release(windowDuration/2.0);
 
-    if (!test) {
-        spork ~ magnetize(idx, currentDuration);
-    }
+    waitDuration => now;
 
-    // set envelope
+    // actuate
 
-    env[idx].attackTime(currentDuration/2.0);
-    env[idx].releaseTime(currentDuration/2.0);
+    spork ~ magnetize(idx, windowDuration);
 
-    // play
+    // attack / release
 
-    env[idx].keyOn;
-    currentDuration/2.0 => now;
-    env[idx].keyOff;
-    currentDuration/2.0 => now;
+    env[idx].keyOn();
+    windowDuration/2 => now;
+    env[idx].keyOff();
+    windowDuration/2 => now;
 
-    // rest
-
-    restDuration => now;
 }
 
+fun void go(int idx, dur pieceDuration) {
+    now => time start;
+
+    25::second => dur minDuration;
+    40::second => dur maxDuration;
+
+    (pieceDuration/(((minDuration + maxDuration)/2.0)))$int => int averageNumRises;
+
+    0.3 => float minPercent;
+    1.0 => float maxPercent;
+
+    (maxPercent - minPercent)/averageNumRises => float riseIncrement;
+
+    while (now < start + pieceDuration) {
+        Math.random2f(minPercent, Std.clampf(minPercent + 0.2, minPercent, 1.0)) => float risePercent;
+        (Math.random2f(0.0, 1.0) * (maxDuration - minDuration)) + minDuration => dur riseDuration;
+        rise(idx, risePercent, riseDuration);
+
+        riseIncrement +=> minPercent;
+
+        // just in case
+
+        if (minPercent > 1.0) {
+            1.0 => minPercent;
+        }
+    }
+
+    numEndings++;
+}
 
 fun void main() {
-    3::second => dur startingDuration;
-    10::second => dur endingDuration;
+    4::minute => dur pieceDuration;
 
     for (0 => int i; i < 3; i++) {
-        spork ~ sequence(i, startingDuration, endingDuration, 4::minute);
-        (endingDuration/startingDuration)::samp => now;
-        <<< i >>>;
+        spork ~ go(i, pieceDuration);
     }
+
+    now => time start;
+
+    while (numEndings < 3) {
+        second => now;
+    }
+
+    <<< (now - start)/second, pieceDuration/second, "" >>>;
 }
 
 // run
 
 second => now;
-<<< "Okay.", "" >>>;
+<<< "okay", "" >>>;
 
 main();
