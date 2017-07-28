@@ -24,7 +24,13 @@ if (test) {
 
 // guts
 
+fun void geiger(int idx) {
+}
+
 fun void main() {
+    spork ~ geiger(0);
+    spork ~ geiger(1);
+    spork ~ geiger(2);
 }
 
 // run
