@@ -1,21 +1,13 @@
 // main.ck
-// (vibration-tones)
+// (geiger)
 
 // July 27th, 2017
 // Eric Heep
 
 // init
 
-1 => int test;
-40 => int threshold;
-0.9 => float pole;
-0.1::samp => dur chainDuration;
-
 Meepo meep;
-Pitchtrack pitch[3];
 Gain g[3];
-
-
 
 if (test) {
     adc => g[0] => dac;

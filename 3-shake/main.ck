@@ -1,4 +1,4 @@
-// untitled-3.ck
+// main.ck
 // (shake)
 
 // July 26th, 2017
@@ -65,6 +65,6 @@ fun void main() {
 // run
 
 second => now;
-<<< "Okay.", "" >>>;
+<<< "okay", "" >>>;
 
 main();
