@@ -120,8 +120,6 @@ fun void main() {
     while (numEndings < 3) {
         second => now;
     }
-
-    <<< (now - start)/second, pieceDuration/second, "" >>>;
 }
 
 // run

@@ -36,7 +36,7 @@ fun void chain(int section) {
         if (test) {
             <<< i, chainDuration/second, "" >>>;
         } else {
-            meep.solenoid(i, 50);
+            meep.actuate(i, 50);
         }
 
         chainDuration => now;
@@ -103,6 +103,6 @@ fun void main() {
 // run
 
 second => now;
-<<< "Okay.", "" >>>;
+<<< "okay", "" >>>;
 
 main();
