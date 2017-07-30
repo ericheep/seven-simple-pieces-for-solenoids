@@ -1,7 +1,7 @@
 // main.ck
 // (vibration-tones)
 
-// July 27th, 2017
+// July 31st, 2017
 // Eric Heep
 
 // init
@@ -9,29 +9,29 @@
 1 => int test;
 
 Meepo meep;
-ADSR attackEnv;
-ADSR releaseEnv;
-
-release.attack(0::samp);
+ADSR solenoidFadeOut;
+ADSR sineFadeIn;
 
 PitchTrack pitch[3];
 SinOsc sin[3];
 Gain g[3];
 
-for (0 => int i; i < 3; i++) {
-    sin[i] => env => dac.left;
-}
 
 if (test) {
-    adc => g[0] => releaseEnv => dac;
     for (0 => int i; i < 3; i++) {
-        sin[i].freq(500 + i * 7.0);
+        adc => g[i] => solenoidFadeOut => dac;
+        g[i] => pitch[i] => blackhole;
+        sin[i] => sineFadeIn => dac;
+
+        spork ~ pitchSearch[i];
     }
-    g[0].gain(0.0);
 } else {
     for (0 => int i; i < 3; i++) {
-        adc.chan(i) => g[i] => releaseEnv => dac.left;
-        adc.chan(i) => pitch[i];
+        adc.chan(i) => g[i] => solenoidFadeOut => dac.left;
+        g[i] => pitch[i] => blackhole;
+        sin[i] => sineFadeIn => dac.left;
+
+        spork ~ pitchSearch[i];
     }
 
     meep.init();
@@ -54,29 +54,65 @@ fun void magnetize(int idx, dur duration) {
     }
 }
 
-fun void main() {
-    3::minute => dur totalDuration;
+fun void pitchSearch(int idx) {
+    float expectedFreq;
+    float currentFreq;
+    0.01 => float freqIncrement;
 
-    releaseEnv.releaseTime(totalDuration);
+    while (true) {
+        // pitch[idx].pitch() => expectedFreq;
+        sin[idx].freq() => currentFreq;
 
-    releaseEnv.keyOn();
+        if (currentFreq < expectedFreq) {
+            freqIncrement +=> currentFreq;
+        } else {
+            freqIncrement +=> currentFreq;
+        }
+
+        10::ms => now;
+    }
+}
+
+fun void solenoidBranch(dur totalDuration, dur fadeDuration) {
+    solenoidFadeOut.attackTime(1::samp);
+    solenoidFadeOut.releaseTime(fadeDuration);
+    solenoidFadeOut.keyOn();
+
     1::samp => now;
-    releaseEnv.keyOff();
 
+    // start fade out and actuate
+
+    solenoidFadeOut.keyOff();
 
     for (0 => int i; i < 3; i++) {
-        spork ~ magnetize(i, actuateDuration);
+        spork ~ magnetize(i, totalDuration);
     }
 
-    totalDuration * .333 => now;
+    totalDuration => now;
+}
 
-    attackEnv.attackTime(totalDuration);
-    attackEnv.keyOn();
+fun void sineBranch(dur fadeDuration) {
+    // start fade in and actuate
 
-    totalDuration * .333 => now;
+    sineFadeIn.attackTime(fadeDuration);
+    sineFadeIn.keyOn();
+
+    fadeDuration => now;
+}
+
+fun void main() {
+    3::minute => dur totalDuration;
+    0.666 * totalDuration => dur fadeDuration;
+    0.333 * totalDuration => dur waitDuration;
 
 
-    totalDuration * .333 => now;
+    spork ~ solenoidBranch(totalDuration, fadeDuration);
+
+    waitDuration => now;
+
+    spork ~ sineBranch(fadeDuration);
+
+    fadeDuration => now;
 }
 
 // run
