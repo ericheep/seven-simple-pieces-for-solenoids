@@ -23,7 +23,7 @@ if (test) {
         g[i] => pitch[i] => blackhole;
         sin[i] => sineFadeIn => dac;
 
-        spork ~ pitchSearch[i];
+        spork ~ pitchSearch(i);
     }
 } else {
     for (0 => int i; i < 3; i++) {
@@ -31,7 +31,7 @@ if (test) {
         g[i] => pitch[i] => blackhole;
         sin[i] => sineFadeIn => dac.left;
 
-        spork ~ pitchSearch[i];
+        spork ~ pitchSearch(i);
     }
 
     meep.init();
@@ -60,14 +60,16 @@ fun void pitchSearch(int idx) {
     0.01 => float freqIncrement;
 
     while (true) {
-        // pitch[idx].pitch() => expectedFreq;
+        pitch[idx].get() => expectedFreq;
         sin[idx].freq() => currentFreq;
 
         if (currentFreq < expectedFreq) {
             freqIncrement +=> currentFreq;
         } else {
-            freqIncrement +=> currentFreq;
+            freqIncrement -=> currentFreq;
         }
+
+        <<< expectedFreq, currentFreq >>>;
 
         10::ms => now;
     }
@@ -80,7 +82,7 @@ fun void solenoidBranch(dur totalDuration, dur fadeDuration) {
 
     1::samp => now;
 
-    // start fade out and actuate
+    // start fade out piezos and actuate
 
     solenoidFadeOut.keyOff();
 
@@ -92,9 +94,10 @@ fun void solenoidBranch(dur totalDuration, dur fadeDuration) {
 }
 
 fun void sineBranch(dur fadeDuration) {
-    // start fade in and actuate
-
     sineFadeIn.attackTime(fadeDuration);
+
+    // start to fade in sine tones fade in
+
     sineFadeIn.keyOn();
 
     fadeDuration => now;
@@ -104,7 +107,6 @@ fun void main() {
     3::minute => dur totalDuration;
     0.666 * totalDuration => dur fadeDuration;
     0.333 * totalDuration => dur waitDuration;
-
 
     spork ~ solenoidBranch(totalDuration, fadeDuration);
 
