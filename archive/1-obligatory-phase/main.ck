@@ -60,7 +60,7 @@ fun void phaseLoop(int idx, int numCycles, dur totalDuration) {
 
 
 fun void main() {
-    phase(3, 2::minute, 1.0::second);
+    phase(3, 1::minute, 0.5::second);
 }
 
 // run
