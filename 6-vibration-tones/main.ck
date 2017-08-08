@@ -6,7 +6,7 @@
 
 // init
 
-1 => int test;
+0 => int test;
 
 Meepo meep;
 ADSR solenoidFadeOut;
@@ -30,6 +30,7 @@ if (test) {
         adc.chan(i) => g[i] => solenoidFadeOut => dac.left;
         g[i] => pitch[i] => blackhole;
         sin[i] => sineFadeIn => dac.left;
+        sin[i].freq(100);
 
         spork ~ pitchSearch(i);
     }
@@ -42,8 +43,8 @@ if (test) {
 fun void magnetize(int idx, dur duration) {
     now => time start;
 
-    Math.random2(3, 7) => int velocity;
-    Math.random2(3, 7)::ms => dur milliseconds;
+    Math.random2(3, 5) => int velocity;
+    Math.random2(3, 9)::ms => dur milliseconds;
 
     while (now < start + duration) {
         if (!test) {
@@ -56,12 +57,11 @@ fun void magnetize(int idx, dur duration) {
 
 fun void pitchSearch(int idx) {
     float expectedFreq;
-    float currentFreq;
-    0.01 => float freqIncrement;
+    100 => float currentFreq;
+    0.1 => float freqIncrement;
 
     while (true) {
         pitch[idx].get() => expectedFreq;
-        sin[idx].freq() => currentFreq;
 
         if (currentFreq < expectedFreq) {
             freqIncrement +=> currentFreq;
@@ -69,9 +69,9 @@ fun void pitchSearch(int idx) {
             freqIncrement -=> currentFreq;
         }
 
-        <<< expectedFreq, currentFreq >>>;
+        currentFreq * (idx + 1) => sin[idx].freq;
 
-        10::ms => now;
+        100::ms => now;
     }
 }
 
@@ -103,7 +103,17 @@ fun void sineBranch(dur fadeDuration) {
     fadeDuration => now;
 }
 
+fun void freqPrint() {
+    while (true) {
+        <<< "1: ", sin[0].freq(), pitch[0].get(),
+            "2: ", sin[1].freq(), pitch[1].get(),
+            "3: ", sin[2].freq(), pitch[2].get(), "" >>>;
+        100::ms => now;
+    }
+}
+
 fun void main() {
+    spork ~ freqPrint();
     3::minute => dur totalDuration;
     0.666 * totalDuration => dur fadeDuration;
     0.333 * totalDuration => dur waitDuration;
