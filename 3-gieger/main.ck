@@ -1,7 +1,7 @@
 // main.ck
 // (geiger)
 
-// July 27th, 2017
+// August 8th, 2017
 // Eric Heep
 
 // init
