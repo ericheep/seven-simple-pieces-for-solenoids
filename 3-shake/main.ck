@@ -18,13 +18,10 @@ if (test) {
     adc => l => blackhole;
     g[0].gain(0.0);
 } else {
-    adc.chan(0) => g[0] => dac.left;
-    adc.chan(1) => g[1] => dac.left;
-    adc.chan(2) => g[2] => dac.left;
-
-    adc.chan(0) => l;
-    adc.chan(1) => l;
-    adc.chan(2) => l;
+    for (0 => int i; i < 3; i++) {
+        adc.chan(i) => g[i] => dac.left;
+        adc.chan(i) => l;
+    }
     l => blackhole;
 
     meep.init();
