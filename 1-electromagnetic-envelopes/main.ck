@@ -11,7 +11,7 @@ Gain g[3];
 SinOsc s[3];
 WinFuncEnv env[3];
 
-1 => int test;
+0 => int test;
 
 if (test) {
     for (0 => int i; i < 3; i++) {

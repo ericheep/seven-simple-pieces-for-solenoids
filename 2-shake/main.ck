@@ -53,9 +53,14 @@ fun void beeps() {
 }
 
 fun void main() {
+    now => time startDuration;
+    500::ms => dur loopDuration;
+    1::ms => dur increment;
     while (true) {
         beeps();
-        .4::second => now;
+        loopDuration - increment => loopDuration;
+        loopDuration => now;
+        <<< "loop: ", loopDuration/ms, "total: ", (now - startDuration)/minute, ""  >>>;
     }
 }
 
