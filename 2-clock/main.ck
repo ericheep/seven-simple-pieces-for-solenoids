@@ -1,5 +1,5 @@
 // main.ck
-// (scrape)
+// (clock)
 
 // August 8th, 2017
 // Eric Heep
@@ -38,8 +38,8 @@ if (test) {
 fun void magnetize(int idx, dur length) {
     now => time start;
 
-    Math.random2(5, 6) => int velocity;
-    Math.random2(6, 7)::ms => dur milliseconds;
+    20 => int velocity;
+    20::ms => dur milliseconds;
 
     while (now < start + length) {
         meep.actuate(idx, velocity);
@@ -49,7 +49,7 @@ fun void magnetize(int idx, dur length) {
 
 fun void beeps() {
     [0, 1, 2] @=> int order[];
-    u.shuffleArray(order);
+    /* u.shuffleArray(order); */
 
     for (0 => int i; i < 3; i++) {
         spork ~ magnetize(order[i], 30::ms);
@@ -60,13 +60,8 @@ fun void beeps() {
 
 fun void main() {
     now => time startDuration;
-    300::ms => dur loopDuration;
-    1::ms => dur increment;
-    while (true) {
+    while (now < startDuration + 3.5::minute) {
         beeps();
-        loopDuration - increment => loopDuration;
-        loopDuration => now;
-        <<< "loop: ", loopDuration/ms, "total: ", (now - startDuration)/minute, ""  >>>;
     }
 }
 
