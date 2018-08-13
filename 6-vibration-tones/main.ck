@@ -26,10 +26,16 @@ if (test) {
         spork ~ pitchSearch(i);
     }
 } else {
+    adc.chan(0) => g[0] => solenoidFadeOut => dac.left;
+    adc.chan(1) => g[1] => solenoidFadeOut => dac;
+    adc.chan(2) => g[2] => solenoidFadeOut => dac.right;
+
+    sin[0] => sineFadeIn => dac.left;
+    sin[1] => sineFadeIn => dac;
+    sin[2] => sineFadeIn => dac.right;
+
     for (0 => int i; i < 3; i++) {
-        adc.chan(i) => g[i] => solenoidFadeOut => dac.left;
         g[i] => pitch[i] => blackhole;
-        sin[i] => sineFadeIn => dac.left;
         sin[i].freq(100);
 
         spork ~ pitchSearch(i);
@@ -114,7 +120,7 @@ fun void freqPrint() {
 
 fun void main() {
     spork ~ freqPrint();
-    3::minute => dur totalDuration;
+    3.0::minute => dur totalDuration;
     0.666 * totalDuration => dur fadeDuration;
     0.333 * totalDuration => dur waitDuration;
 
@@ -125,6 +131,12 @@ fun void main() {
     spork ~ sineBranch(fadeDuration);
 
     fadeDuration => now;
+
+    for (0 => int i; i < 3; i++) {
+        spork ~ magnetize(i, 1::minute);
+    }
+
+    1::minute => now;
 }
 
 // run

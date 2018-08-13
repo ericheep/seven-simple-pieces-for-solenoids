@@ -18,10 +18,16 @@ if (test) {
     adc => l => blackhole;
     g[0].gain(0.0);
 } else {
+    adc.chan(0) => g[0] => dac.left;
+    adc.chan(1) => g[1] => dac;
+    adc.chan(2) => g[2] => dac.right;
+
+    g[1].gain(0.8);
+
     for (0 => int i; i < 3; i++) {
-        adc.chan(i) => g[i] => dac.left;
         adc.chan(i) => l;
     }
+
     l => blackhole;
 
     meep.init();
@@ -54,7 +60,7 @@ fun void beeps() {
 
 fun void main() {
     now => time startDuration;
-    500::ms => dur loopDuration;
+    300::ms => dur loopDuration;
     1::ms => dur increment;
     while (true) {
         beeps();

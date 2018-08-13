@@ -20,9 +20,12 @@ if (test) {
         s[i].gain(0.8);
     }
 } else {
-    for (0 => int i; i < 3; i++) {
-        adc.chan(i) => g[i] => env[i] => dac.left;
-    }
+    adc.chan(0) => g[0] => env[0] => dac.left;
+    adc.chan(1) => g[1] => env[1] => dac;
+    adc.chan(2) => g[2] => env[2] => dac.left;
+
+    env[1].gain(0.8);
+
     meep.init();
 }
 
@@ -60,8 +63,8 @@ fun void rise(int idx, float percentActive, dur totalDuration) {
     totalDuration - windowDuration => dur restDuration;
     Math.random2f(0.0, 1.0) * restDuration => dur waitDuration;
 
-    env[idx].attack(windowDuration/2.0);
-    env[idx].release(windowDuration/2.0);
+    env[idx].attackTime(windowDuration/2.0);
+    env[idx].releaseTime(windowDuration/2.0);
 
     waitDuration => now;
 
